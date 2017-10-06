@@ -1,4 +1,4 @@
-FROM php:{PHP_VERSION}-apache
+FROM php:5.6-apache
 LABEL maintainer="Thomas Nabord <thomas.nabord@prestashop.com>"
 
 ENV PS_DOMAIN="<to be defined>" \
@@ -40,10 +40,10 @@ RUN docker-php-source extract \
 	&& if [ -d "/usr/src/php/ext/opcache" ]; then docker-php-ext-install opcache; fi \
 	&& docker-php-source delete
 
-ENV PS_VERSION {PS_VERSION}
+ENV PS_VERSION 1.7.2.2
 
 # Get PrestaShop
-ADD {PS_URL} /tmp/prestashop.zip
+ADD https://www.prestashop.com/download/old/prestashop_1.7.2.2.zip /tmp/prestashop.zip
 
 # Prepare install and CMD script
 COPY config_files/ps-extractor.sh config_files/docker_run.sh /tmp/
