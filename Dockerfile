@@ -62,4 +62,5 @@ RUN a2enmod rewrite
 COPY config_files/php.ini /usr/local/etc/php/
 
 # Run
+RUN ["chmod", "+x", "/tmp/docker_run.sh"]
 CMD ["/tmp/docker_run.sh"]
