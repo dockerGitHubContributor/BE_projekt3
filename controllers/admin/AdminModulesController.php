@@ -1395,10 +1395,36 @@ class AdminModulesControllerCore extends AdminController
     {
         parent::initModal();
 
+        $languages = Language::getLanguages(false);
+        $translateLinks = array();
+        
+        if (Tools::getIsset('configure')) {
+            $module = Module::getInstanceByName(Tools::getValue('configure'));
+            $isNewTranslateSystem = $module->isUsingNewTranslationSystem();
+            $link = Context::getContext()->link;
+            foreach ($languages as $lang) {
+                if ($isNewTranslateSystem) {
+                    $translateLinks[$lang['iso_code']] = $link->getAdminLink('AdminTranslationSf', true, array(
+                        'lang' => $lang['iso_code'],
+                        'type' => 'modules',
+                        'selected' => $module->name,
+                        'locale' => $lang['locale'],
+                    ));
+                } else {
+                    $translateLinks[$lang['iso_code']] = $link->getAdminLink('AdminTranslations', true, array(), array(
+                        'type' => 'modules',
+                        'module' => $module->name,
+                        'lang' => $lang['iso_code'],
+                    ));
+                }
+            }
+        }
+
         $this->context->smarty->assign(array(
             'trad_link' => 'index.php?tab=AdminTranslations&token='.Tools::getAdminTokenLite('AdminTranslations').'&type=modules&module='.Tools::getValue('configure').'&lang=',
-            'module_languages' => Language::getLanguages(false),
-            'module_name' => Tools::getValue('module_name'),
+            'module_languages' => $languages,
+            'module_name' => Tools::getValue('configure'),
+            'translateLinks' => $translateLinks,
         ));
 
         $modal_content = $this->context->smarty->fetch('controllers/modules/modal_translation.tpl');

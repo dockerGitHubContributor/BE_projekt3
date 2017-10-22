@@ -493,10 +493,10 @@ class LinkCore
     /**
      * Create a link to a CMS page.
      *
-     * @param CMS    $cms     CMS object
-     * @param string $alias
-     * @param bool   $ssl
-     * @param int    $idLang
+     * @param CMS|int $cms     CMS object
+     * @param string  $alias
+     * @param bool    $ssl
+     * @param int     $idLang
      *
      * @return string
      */
@@ -732,6 +732,11 @@ class LinkCore
 
             case 'AdminStockManagement':
                 $sfRoute = array_key_exists('route', $sfRouteParams) ? $sfRouteParams['route'] : 'admin_stock_overview';
+
+                return $sfRouter->generate($sfRoute, $sfRouteParams, UrlGeneratorInterface::ABSOLUTE_URL);
+
+            case 'AdminTranslationSf':
+                $sfRoute = array_key_exists('route', $sfRouteParams) ? $sfRouteParams['route'] : 'admin_international_translation_overview';
 
                 return $sfRouter->generate($sfRoute, $sfRouteParams, UrlGeneratorInterface::ABSOLUTE_URL);
         }
