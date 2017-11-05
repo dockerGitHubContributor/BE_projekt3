@@ -1,16 +1,23 @@
 from urllib.request import urlopen
 from html.parser import HTMLParser
+from random import randrange
+
 
 class MyHTMLParser(HTMLParser):
+    
+    
     
     def __init__(self, category, subcategory):
         HTMLParser.__init__(self)
         self.__category = category
         self.__subcategory = subcategory
-        self.__result = category + "\t" + subcategory + "\t"
+        self.__result = ""
     
     __category = ""
     __subcategory = ""
+    __link = ""
+    __name = ""
+    __price = ""
     __result = ""
     __isSrc = False
     __isAlt = False
@@ -19,25 +26,39 @@ class MyHTMLParser(HTMLParser):
         if tag == 'div':
             for attr in attrs:
                 if (attr[0] == 'data-price'):
-                    self.__result += "\t" + attr[1] + "\n"
+                    self.__price = attr[1]
                     if self.__isSrc and self.__isAlt:
+                        self.__name = self.__name.replace(";", "-")
+                        self.__link = self.__link.replace("medium.jpg", "main.jpg")
+                        self.__result = ';1;' + self.__name + ';'
+                        self.__result += self.__subcategory + ';'
+                        self.__result += self.__price + ';;;0;;;;;;;;;;;;;;;;'
+                        self.__result += str(randrange(1000)) + ';0;;;;;;;;;;;;;;1;;;1;'
+                        self.__result += self.__link + ';' + self.__name + ';0;;0;;0;0;0;;0\n'
+                        self.__result = self.__result.replace("&amp", "")
+                        self.__result = self.__result.replace(" ;", ";")
+                        
                         output.write(self.__result)
-                        self.__result = self.__category + "\t" + self.__subcategory + "\t"
+                           
+                        
                         self.__isSrc = False
                         self.__isAlt = False
-                    else:
-                        self.__result = self.__category + "\t" + self.__subcategory + "\t"
+                        self.__name = ""
+                        self.__link = ""
+                    self.__price = ""
+
                         
         if tag == 'img':
             for attr in attrs:
                 if attr[0] == 'src':
-                    self.__result += attr[1]
+                    self.__link = attr[1]
                     self.__isSrc = True
                 if attr[0] == 'alt' and attr[1] != "" and attr[1] != "Strona główna Leroy Merlin":
-                    self.__result += '\t"' + attr[1] + '"' 
+                    self.__name = attr[1] 
                     self.__isAlt = True
             if self.__isAlt == False or self.__isSrc == False:
-                self.__result = self.__category + "\t" + self.__subcategory + "\t"
+                self.__name = ""
+                self.__link = ""
                 self.__isAlt = False
                 self.__isSrc = False
                 
@@ -48,14 +69,15 @@ class MyHTMLParser(HTMLParser):
         if tag == 'img':
             for attr in attrs:
                 if attr[0] == 'src':
-                    self.__result += attr[1]
+                    self.__link += attr[1]
                     self.__isSrc = True
                 if attr[0] == 'alt' and attr[1] != "" and attr[1] != "Strona główna Leroy Merlin":
-                    self.__result += '\t"' + attr[1] + '"' 
+                    self.__name = attr[1]
                     self.__isAlt = True
                     
             if self.__isAlt == False or self.__isSrc == False:
-                self.__result = self.__category + "\t" + self.__subcategory + "\t"
+                self.__link = ""
+                self.__name = ""
                 self.__isAlt = False
                 self.__isSrc = False
                     
@@ -133,6 +155,7 @@ websites = [
     ("Dachy i akcesoria", "Farby i uszczelniacze dachowe", "https://www.leroymerlin.pl/dachy-i-akcesoria/farby-i-uszczelniacze-dachowe,a203,strona-4.html"),
     ]
 
+output = open('products.csv', 'w')
 for site in websites:
     print(site[2])
     sock = urlopen(site[2])
@@ -140,10 +163,10 @@ for site in websites:
     sock.close()
     source = str(htmlSource, 'utf-8')
 
-    output = open('result.txt', 'a')
     parser = MyHTMLParser(site[0], site[1])
     parser.feed(source)
-    output.close()
+    
+output.close()
 
 
 
